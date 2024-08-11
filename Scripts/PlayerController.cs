@@ -11,10 +11,10 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] GameObject cameraController;
 
-    public float speed = 1;
+    public float walkSpeed = 1, runSpeed = 3, distToGround = .5f;
     public float gravity = 4;
 
-    [NonSerialized] public float xMomentum, yMomentum, yAngle, yAngleCamera;
+    [NonSerialized] public float xMomentum, yMomentum, yAngle, yAngleCamera, speed = 1;
     int state = 1;
     bool isGrounded;
     RaycastHit groundRaycast;
@@ -29,9 +29,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        isGrounded = Physics.SphereCast(transform.position, .5f, Vector3.down, out groundRaycast, 1.05f, LayerMask.GetMask("Default"));
-
-        xMomentum = Mathf.Max(Mathf.Abs(Input.GetAxis("Horizontal")), Mathf.Abs(Input.GetAxis("Vertical"))) * speed;
+        xMomentum = Mathf.Max(Mathf.Abs(Input.GetAxis("Horizontal")), Mathf.Abs(Input.GetAxis("Vertical")));
 
         yAngleCamera = cameraController.transform.rotation.eulerAngles.y;
         yAngle = (Mathf.Rad2Deg * Mathf.Atan2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical")));
@@ -40,7 +38,7 @@ public class PlayerController : MonoBehaviour
         /* Uses a State Machine like code to switch between walking, jumping, idle etc.
          * 
          * States:
-         * 0:Falling, 1:Idle, 2:Walking
+         * 0:Falling, 1:Idle, 2:Walking, 3:Running
         */
 
         if (!isGrounded)
@@ -75,8 +73,31 @@ public class PlayerController : MonoBehaviour
                 state = 1;
                 animator.SetFloat("SpeedMult", 1);
             }
+            
+            else if (Input.GetButton("Run"))
+            {
+                state = 3;
+            }
+
+            else
+            {
+                speed = walkSpeed;
+            }
         }
 
+        //Running
+        if (state == 3)
+        {
+            if (!Input.GetButton("Run"))
+            {
+                state = 2;
+            }
+
+            else
+            {
+                speed = runSpeed;
+            }
+        }
 
 
         animator.SetInteger("State", state);
@@ -84,6 +105,8 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
+        isGrounded = Physics.SphereCast(col.bounds.center, .25f, Vector3.down, out groundRaycast, distToGround, LayerMask.GetMask("Default"));
+
         if (state == 0)
         {
             yMomentum -= gravity * Time.deltaTime;
@@ -92,7 +115,12 @@ public class PlayerController : MonoBehaviour
             yMomentum = 0;
         }
 
-        deltaVelocity = new Vector3(0,yMomentum,0);
+        rb.velocity = new Vector3(Mathf.Sin((yAngle + yAngleCamera) * Mathf.Deg2Rad) * xMomentum * speed, yMomentum, Mathf.Cos((yAngle + yAngleCamera) * Mathf.Deg2Rad) * xMomentum * speed);
+
+
+        deltaVelocity = new Vector3(0, yMomentum, 0);
         rb.velocity += deltaVelocity;
+
+        Debug.Log(speed);
     }
 }

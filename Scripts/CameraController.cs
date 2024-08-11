@@ -9,8 +9,13 @@ public class CameraController : MonoBehaviour
     public GameObject playerCamera;
     public float cameraXSensitivity = 3;
     public float cameraYSensitivity = 3;
-    public float cameraDistanceDefault = 3;
-    public float cameraXRotationDefault = 50;
+    public float lowerXLimit = -45;
+    public float higherXLimit = 90;
+    public float cameraDistanceTop = 3;
+    public float cameraDistanceMiddle = 4;
+    public float cameraDistanceBottom = 3;
+    public float lockedOnXOffset = 2;
+    public float lockedOnYOffset = 2;
     public float lockOnRange = 10;
     public float lockOnRetargetDelta = .2f;
     public int lockOnRetargetAngle = 30;
@@ -31,10 +36,20 @@ public class CameraController : MonoBehaviour
     void Update()
     {
         cameraYRotation += Input.GetAxis("Mouse X") * cameraXSensitivity;
+        cameraXRotation -= Input.GetAxis("Mouse Y") * cameraYSensitivity;
 
-        if(Mathf.Abs(cameraYRotation) > 180)
+        if (Mathf.Abs(cameraYRotation) > 180)
         {
             cameraYRotation -= 360 * Mathf.Sign(cameraYRotation);
+        }
+
+        if (cameraXRotation <= lowerXLimit)
+        {
+            cameraXRotation = lowerXLimit;
+        }
+        if (cameraXRotation >= higherXLimit)
+        {
+            cameraXRotation = higherXLimit;
         }
 
 
@@ -74,17 +89,13 @@ public class CameraController : MonoBehaviour
 
         // Zoom
 
-        if (targetLockOn == null)
+        if (cameraYRotation <= 0)
         {
-            if (cameraXRotation != cameraXRotationDefault || cameraDistance != cameraDistanceDefault)
-            {
-                cameraXRotation = Mathf.MoveTowards(cameraXRotation, cameraXRotationDefault, 3);
-                cameraDistance = Mathf.MoveTowards(cameraDistance, cameraDistanceDefault, .2f);
-            }
+            cameraDistance = (cameraDistanceMiddle * cameraDistanceTop) / Mathf.Sqrt(Mathf.Pow(cameraDistanceTop * Mathf.Cos(cameraXRotation * Mathf.Deg2Rad), 2f) + Mathf.Pow(cameraDistanceMiddle * Mathf.Sin(cameraXRotation * Mathf.Deg2Rad), 2f));
         }
         else
         {
-            cameraDistance = 10;
+            cameraDistance = (cameraDistanceMiddle * cameraDistanceBottom) / Mathf.Sqrt(Mathf.Pow(cameraDistanceBottom * Mathf.Cos(cameraXRotation * Mathf.Deg2Rad), 2f) + Mathf.Pow(cameraDistanceMiddle * Mathf.Sin(cameraXRotation * Mathf.Deg2Rad), 2f));
         }
 
         cameraFinalDistance = cameraDistance;
@@ -95,7 +106,7 @@ public class CameraController : MonoBehaviour
         }
 
         transform.SetPositionAndRotation(transform.position, Quaternion.Euler(cameraXRotation, cameraYRotation, 0f));
-        playerCamera.transform.localPosition = new Vector3(0, 0, -cameraFinalDistance);
+        playerCamera.transform.localPosition = new Vector3(lockedOnXOffset, lockedOnYOffset, -cameraFinalDistance);
     }
 
 
@@ -159,7 +170,7 @@ public class CameraController : MonoBehaviour
 
             if (Vector2.Distance(new Vector2(currentLocation.x, currentLocation.y), new Vector2(.5f, .5f)) < targetDist && currentLocation.z <= lockOnRange)
             {
-                if (GeometryUtility.TestPlanesAABB(GeometryUtility.CalculateFrustumPlanes(playerViewport), obj.GetComponent<Collider>().bounds))
+                if (GeometryUtility.TestPlanesAABB(GeometryUtility.CalculateFrustumPlanes(playerViewport), obj.GetComponentInParent<Collider>().bounds))
                 {
                     targetDist = Vector2.Distance(new Vector2(currentLocation.x, currentLocation.y), new Vector2(.5f, .5f));
                     targetLockOn = obj;
@@ -173,7 +184,7 @@ public class CameraController : MonoBehaviour
         }
 
         yield return new WaitForSeconds(.2f);
-        
+
         canTarget = true;
     }
 }
