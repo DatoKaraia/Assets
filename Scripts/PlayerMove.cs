@@ -7,7 +7,7 @@ public class PlayerMove : MonoBehaviour
     public float speed = 5.0f;
     public float jumpForce = 5.0f;
     public float gravity = 9.8f;
-    public CharacterController controller; // what i need to attach?
+    public CharacterController controller;
 
     private Vector3 moveDirection = Vector3.zero;
 
