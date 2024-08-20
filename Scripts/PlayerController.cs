@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -11,7 +12,7 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] GameObject cameraController;
 
-    public float walkSpeed = 1, runSpeed = 3, distToGround = .5f;
+    public float jumpForce, distToGround = .5f;
     public float gravity = 4;
 
     [NonSerialized] public float xMomentum, yMomentum, yAngle, yAngleCamera, speed = 1;
@@ -52,6 +53,7 @@ public class PlayerController : MonoBehaviour
             if (isGrounded)
             {
                 state = 1;
+                animator.ResetTrigger("Jump");
             }
         }
 
@@ -62,27 +64,19 @@ public class PlayerController : MonoBehaviour
             {
                 state = 2;
             }
+
+            checkJump();
         }
 
         //Walking
         if (state == 2)
         {
-            animator.SetFloat("SpeedMult", xMomentum);
-            if (xMomentum < .2f)
-            {
-                state = 1;
-                animator.SetFloat("SpeedMult", 1);
-            }
-            
-            else if (Input.GetButton("Run"))
+            if (Input.GetButton("Run"))
             {
                 state = 3;
             }
 
-            else
-            {
-                speed = walkSpeed;
-            }
+            checkJump();
         }
 
         //Running
@@ -93,10 +87,7 @@ public class PlayerController : MonoBehaviour
                 state = 2;
             }
 
-            else
-            {
-                speed = runSpeed;
-            }
+            checkJump();
         }
 
 
@@ -115,12 +106,17 @@ public class PlayerController : MonoBehaviour
             yMomentum = 0;
         }
 
-        rb.velocity = new Vector3(Mathf.Sin((yAngle + yAngleCamera) * Mathf.Deg2Rad) * xMomentum * speed, yMomentum, Mathf.Cos((yAngle + yAngleCamera) * Mathf.Deg2Rad) * xMomentum * speed);
-
-
         deltaVelocity = new Vector3(0, yMomentum, 0);
         rb.velocity += deltaVelocity;
+    }
 
-        Debug.Log(speed);
+    void checkJump()
+    {
+        if (Input.GetButton("Jump"))
+        {
+            state = 0;
+            animator.SetTrigger("Jump");
+            yMomentum = jumpForce;
+        }
     }
 }
