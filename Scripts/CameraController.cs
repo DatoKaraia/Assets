@@ -35,9 +35,11 @@ public class CameraController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // Updates side-to-side and up-and-down movement
         cameraYRotation += Input.GetAxis("Mouse X") * cameraXSensitivity;
         cameraXRotation -= Input.GetAxis("Mouse Y") * cameraYSensitivity;
 
+        // Makes the variable loop from -180 to 180. Stops the rotation becoming -14432943 if you spin around too much
         if (Mathf.Abs(cameraYRotation) > 180)
         {
             cameraYRotation -= 360 * Mathf.Sign(cameraYRotation);
@@ -64,7 +66,7 @@ public class CameraController : MonoBehaviour
 
             else
             {
-                if (targetLockOn != null) targetLockOn.transform.parent.gameObject.layer = LayerMask.NameToLayer("Default");
+                //if (targetLockOn != null) targetLockOn.transform.parent.gameObject.layer = LayerMask.NameToLayer("Default");
 
                 targetLockOn = null;
             }
@@ -147,7 +149,7 @@ public class CameraController : MonoBehaviour
 
         if (targetLockOn != null)
         {
-            targetLockOn.transform.parent.gameObject.layer = LayerMask.NameToLayer("Targeted");
+            //targetLockOn.transform.parent.gameObject.layer = LayerMask.NameToLayer("Targeted");
         }
 
         yield return new WaitForSeconds(.2f);
@@ -180,7 +182,7 @@ public class CameraController : MonoBehaviour
 
         if (targetLockOn != null)
         {
-            targetLockOn.transform.parent.gameObject.layer = LayerMask.NameToLayer("Targeted");
+            //targetLockOn.transform.parent.gameObject.layer = LayerMask.NameToLayer("Targeted");
         }
 
         yield return new WaitForSeconds(.2f);

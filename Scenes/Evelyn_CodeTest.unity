@@ -457,7 +457,7 @@ Animator:
   m_Controller: {fileID: 9100000, guid: 7789101da710d844fb5e5e6fd2d7edca, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
-  m_ApplyRootMotion: 0
+  m_ApplyRootMotion: 1
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_WarningMessage: 
@@ -478,8 +478,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraController: {fileID: 1346841772}
-  walkSpeed: 1
-  runSpeed: 3
+  jumpForce: 10
   distToGround: 1
   gravity: 4
 --- !u!1 &961739749
@@ -630,7 +629,7 @@ GameObject:
   - component: {fileID: 1090161516}
   m_Layer: 0
   m_Name: Lock-On Target
-  m_TagString: Untagged
+  m_TagString: Lock-On Target
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2559,10 +2558,10 @@ SkinnedMeshRenderer:
   - {fileID: 8100322718787920584}
   - {fileID: 8100322718787920548}
   m_BlendShapeWeights: []
-  m_RootBone: {fileID: 8100322718787920540}
+  m_RootBone: {fileID: 375508974}
   m_AABB:
-    m_Center: {x: 0.0000038146973, y: 84.39719, z: -4.0828114}
-    m_Extent: {x: 102.45616, y: 94.40794, z: 21.43799}
+    m_Center: {x: 0, y: 1, z: 0}
+    m_Extent: {x: 1, y: 1, z: 1}
   m_DirtyAABB: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
@@ -2571,5 +2570,5 @@ SceneRoots:
   - {fileID: 203844589}
   - {fileID: 1160234427}
   - {fileID: 186988879}
-  - {fileID: 375508974}
   - {fileID: 1792393896}
+  - {fileID: 375508974}

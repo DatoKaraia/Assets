@@ -76,6 +76,11 @@ public class PlayerController : MonoBehaviour
                 state = 3;
             }
 
+            else if (xMomentum < .2f)
+            {
+                state = 1;
+            }
+
             checkJump();
         }
 
