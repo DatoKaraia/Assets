@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    //Movement Variables
     private Rigidbody rb;
     private Collider col;
     private Animator animator;
@@ -15,11 +16,16 @@ public class PlayerController : MonoBehaviour
     public float jumpForce, distToGround = .5f;
     public float gravity = 4;
 
-    [NonSerialized] public float xMomentum, yMomentum, yAngle, yAngleCamera, speed = 1;
+    [NonSerialized] public float xMomentum, yMomentum, yAngleFinal, yAngleMovement, yAngleCamera, speed = 1;
     int state = 1;
     bool isGrounded;
     RaycastHit groundRaycast;
     Vector3 deltaVelocity;
+
+    //Attack Variables
+    [SerializeField] PlayerWeapon weapon;
+    [SerializeField] GameObject leftHandPivot;
+    int chainPos = 0;
 
     void Start()
     {
@@ -33,13 +39,13 @@ public class PlayerController : MonoBehaviour
         xMomentum = Mathf.Max(Mathf.Abs(Input.GetAxis("Horizontal")), Mathf.Abs(Input.GetAxis("Vertical")));
 
         yAngleCamera = cameraController.transform.rotation.eulerAngles.y;
-        yAngle = (Mathf.Rad2Deg * Mathf.Atan2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical")));
-        transform.rotation = Quaternion.Euler(0f, yAngle + yAngleCamera, 0f);
+        yAngleMovement = (Mathf.Rad2Deg * Mathf.Atan2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical")));
+        transform.rotation = Quaternion.Euler(0f, yAngleFinal, 0f);
 
         /* Uses a State Machine like code to switch between walking, jumping, idle etc.
          * 
          * States:
-         * 0:Falling, 1:Idle, 2:Walking, 3:Running
+         * 0:Falling, 1:Idle, 2:Walking, 3:Running, 4:Attacking
         */
 
         if (!isGrounded)
@@ -81,6 +87,8 @@ public class PlayerController : MonoBehaviour
                 state = 1;
             }
 
+
+            yAngleFinal = yAngleMovement + yAngleCamera;
             checkJump();
         }
 
@@ -92,11 +100,18 @@ public class PlayerController : MonoBehaviour
                 state = 2;
             }
 
+            yAngleFinal = yAngleMovement + yAngleCamera;
             checkJump();
         }
 
 
         animator.SetInteger("State", state);
+
+        if (weapon != null)
+        {
+            weapon.transform.position = leftHandPivot.transform.position;
+            weapon.transform.rotation = leftHandPivot.transform.rotation;
+        }
     }
 
     void FixedUpdate()
@@ -123,5 +138,25 @@ public class PlayerController : MonoBehaviour
             animator.SetTrigger("Jump");
             yMomentum = jumpForce;
         }
+    }
+
+    IEnumerator attack(int type, PlayerWeapon attackWeapon)
+    {
+        if (state != 4)
+        {
+            state = 4;
+
+            //Light attack
+            if (type == 1)
+            {
+                animator.Play(Animator.StringToHash(attackWeapon.lightAttacks[chainPos].attackAniName));
+            }
+            else if (type == 2) 
+            {
+                animator.Play(Animator.StringToHash(attackWeapon.heavyAttacks[chainPos].attackAniName));
+            }
+        }
+
+        yield return null;
     }
 }
